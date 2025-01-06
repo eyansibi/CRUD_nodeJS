@@ -15,6 +15,7 @@ p = document.createElement("p")
 p.innerText = data
 document.body.appendChild(p)
 })
+
 socket.on("msg", (data) => {
 p = document.createElement("p")
 p.innerText = data

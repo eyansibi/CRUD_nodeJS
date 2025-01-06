@@ -7,7 +7,10 @@ const socketIO = require("socket.io");
 // Import des routes
 const batimentRoute = require("./routes/batiment.route");
 const niveauRoute = require("./routes/niveau.route");
-
+const {getNiveau,
+    construction
+  } = require("./controllers/niveau.controller");
+  const{calculBatiemnt}=require("./controllers/batiment.controller")
 // Initialisation de l'application Express
 const app = express();
 
@@ -51,10 +54,46 @@ io.on("connection", async (socket) => {
     socket.emit("msg", "Erreur lors de la récupération des données des niveaux.");
   }
 
+
+  socket.on("construire", async (data) => {
+    console.log("Demande de construction pour le niveau ID :", data);
+
+    try {
+      // Simuler un objet `req` et `res`
+      const req = { params: { id: data } };
+      const res = {
+        status: (code) => ({
+          json: (response) => {
+            console.log(`Construction terminée avec le statut ${code} :`, response);
+            socket.emit("msg", response.message || "Erreur inconnue.");
+          },
+        }),
+      };
+
+      // Appeler la fonction `construction`
+      await construction(req, res);
+
+      // Récupérer les niveaux mis à jour
+      const niveauxMisAJour = await getAllNiveau();
+      socket.emit("msg", JSON.stringify(niveauxMisAJour));
+    } catch (error) {
+      console.error("Erreur lors de la construction :", error.message);
+      socket.emit("msg", "Erreur interne lors de la construction.");
+    }
+  });
+
+  socket.on("calcul", async (data) => {
+    const c = await calculBatiemnt();
+    console.log("jjjjjj", "la somme des niveaux est :" + JSON.stringify(c));
+    io.emit("msg", "la somme des niveaux est :" + JSON.stringify(c));
+  });
   // Gestion de la déconnexion
   socket.on("disconnect", () => {
     console.log("Un utilisateur s'est déconnecté");
   });
+
+  
+
 });
 
 // Connexion à la base de données MongoDB

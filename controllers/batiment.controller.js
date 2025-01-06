@@ -60,11 +60,24 @@ const deleteBatiment= async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
+async function calculBatiemnt(req, res, next) {
+  try {
+    const data = await Batiment.find();
+    let i = 0;
+    data.forEach((element) => {
+      console.log(element.nbr_niveau >= 5);
+      if (element.nbr_niveau >= 5 && element.adresse == "gabes") i++;
+    });
+    return i;
+  } catch (err) {
+    console.log(err);
+  }
+}
 module.exports = {
   getBatiments,
   getBatiment,
   createBatiment,
   updateBatiment,
   deleteBatiment,
+  calculBatiemnt
 };
